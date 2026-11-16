@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora Andi Drop Drop - Préstamos Estudiantiles</title>
+    <!-- Carga de Tailwind CSS para estilos limpios, modernos y responsivos -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Fuente Inter para una excelente legibilidad académica -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Configuración personalizada de colores académicos en Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    },
+                    colors: {
+                        academic: {
+                            navy: '#0f294a',
+                            blue: '#1e40af',
+                            sky: '#0284c7',
+                            emerald: '#059669',
+                            light: '#f8fafc',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- Encabezado Académico -->
+    <header class="bg-academic-navy text-white shadow-lg border-b-4 border-emerald-500">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+                <div>
+                    <span class="inline-block px-3 py-1 text-xs font-semibold tracking-wider uppercase bg-sky-900 text-sky-200 rounded-full mb-2">
+                        Proyecto Universitario • Matemática Financiera
+                    </span>
+                    <h1 class="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight text-white">
+                        Calculadora Andi Drop Drop
+                    </h1>
+                    <p class="mt-2 text-slate-300 text-sm sm:text-base max-w-2xl">
+                        Herramienta interactiva de préstamos estudiantiles para evaluar el costo financiero y rendimiento mediante el modelo lineal de interés simple.
+                    </p>
+                </div>
+                <!-- Tarjeta rápida de fórmulas -->
+                <div class="bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl p-4 text-sm shrink-0">
+                    <p class="font-semibold text-emerald-300 mb-1">Fórmulas Aplicadas:</p>
+                    <div class="font-mono text-white space-y-1">
+                        <p>I = P &times; r &times; t</p>
+                        <p>M = P + I</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Contenido Principal -->
+    <main class="flex-grow max-w-6xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <!-- Contenedor de mensajes de validación (reemplaza alert()) -->
+        <div id="error-banner" class="hidden mb-6 bg-red-50 border-l-4 border-red-500 text-red-800 p-4 rounded-r-lg shadow-sm flex items-center justify-between" role="alert">
+            <div class="flex items-center">
+                <svg class="w-5 h-5 text-red-500 mr-3 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                </svg>
+                <span id="error-message" class="text-sm font-medium">Por favor verifica los datos ingresados.</span>
+            </div>
+            <button onclick="ocultarError()" class="text-red-500 hover:text-red-700 font-bold text-lg leading-none px-2">&times;</button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+            
+            <!-- Columna Izquierda: Formulario Interactivo -->
+            <section class="lg:col-span-5 bg-white rounded-2xl shadow-md border border-slate-200 p-6 sm:p-8 h-fit">
+                <div class="border-b border-slate-100 pb-4 mb-6">
+                    <h2 class="text-xl font-bold text-academic-navy flex items-center gap-2">
+                        <svg class="w-5 h-5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+                        </svg>
+                        Parámetros del Préstamo
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-1">Ingresa los valores del crédito educativo a evaluar.</p>
+                </div>
+
+                <form id="loan-form" class="space-y-5" novalidate>
+                    <!-- Campo 1: Capital Inicial (P) -->
+                    <div>
+                        <label for="capital" class="block text-sm font-semibold text-slate-700 mb-1">
+                            Capital Inicial o Monto del Préstamo (<span class="font-mono text-sky-700">P</span>)
+                        </label>
+                        <div class="relative rounded-xl shadow-sm">
+                            <div class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5">
+                                <span class="text-slate-500 font-semibold sm:text-sm">$</span>
+                            </div>
+                            <input type="text" id="capital" name="capital" inputmode="numeric"
+                                placeholder="Ej: 5.000.000" value="5.000.000"
+                                class="block w-full rounded-xl border border-slate-300 pl-8 pr-16 py-3 text-slate-900 placeholder-slate-400 focus:border-sky-600 focus:ring-2 focus:ring-sky-600/20 focus:outline-none transition sm:text-sm font-medium">
+                            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5">
+                                <span class="text-slate-400 text-xs font-semibold">COP</span>
+                            </div>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-1">Valor desembolsado al estudiante.</p>
+                    </div>
+
+                    <!-- Campo 2: Tasa de Interés (r) y Periodicidad -->
+                    <div>
+                        <label for="tasa" class="block text-sm font-semibold text-slate-700 mb-1">
+                            Tasa de Interés (<span class="font-mono text-sky-700">r</span>) y Periodicidad
+                        </label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="relative rounded-xl shadow-sm">
+                                <input type="number" id="tasa" name="tasa" step="any" min="0.01"
+                                    placeholder="Ej: 1.5" value="1.5"
+                                    class="block w-full rounded-xl border border-slate-300 pl-3.5 pr-9 py-3 text-slate-900 placeholder-slate-400 focus:border-sky-600 focus:ring-2 focus:ring-sky-600/20 focus:outline-none transition sm:text-sm font-medium">
+                                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3.5">
+                                    <span class="text-slate-500 font-semibold sm:text-sm">%</span>
+                                </div>
+                            </div>
+                            <select id="periodicidad-tasa" name="periodicidad-tasa"
+                                class="block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-3 text-slate-900 focus:border-sky-600 focus:ring-2 focus:ring-sky-600/20 focus:outline-none transition sm:text-sm font-medium">
+                                <option value="mensual" selected>Mensual (N.M.)</option>
+                                <option value="anual">Anual (N.A.)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Campo 3: Tiempo o Plazo (t) y Unidad -->
+                    <div>
+                        <label for="tiempo" class="block text-sm font-semibold text-slate-700 mb-1">
+                            Tiempo o Plazo del Crédito (<span class="font-mono text-sky-700">t</span>)
+                        </label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <input type="number" id="tiempo" name="tiempo" step="1" min="1"
+                                placeholder="Ej: 12" value="12"
+                                class="block w-full rounded-xl border border-slate-300 px-3.5 py-3 text-slate-900 placeholder-slate-400 focus:border-sky-600 focus:ring-2 focus:ring-sky-600/20 focus:outline-none transition sm:text-sm font-medium">
+                            <select id="unidad-tiempo" name="unidad-tiempo"
+                                class="block w-full rounded-xl border border-slate-300 bg-white px-3.5 py-3 text-slate-900 focus:border-sky-600 focus:ring-2 focus:ring-sky-600/20 focus:outline-none transition sm:text-sm font-medium">
+                                <option value="meses" selected>Meses</option>
+                                <option value="anios">Años</option>
+                                <option value="dias">Días (Base 360)</option>
+                            </select>
+                        </div>
+                        <p class="text-xs text-slate-400 mt-1">Se realiza conversión automática de unidades.</p>
+                    </div>
+
+                    <!-- Botones de Acción -->
+                    <div class="pt-3 flex flex-col sm:flex-row gap-3">
+                        <button type="submit"
+                            class="flex-1 bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-semibold py-3 px-5 rounded-xl shadow-sm hover:shadow transition flex items-center justify-center gap-2 cursor-pointer">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            Calcular
+                        </button>
+                        <button type="button" id="btn-reset"
+                            class="bg-slate-100 hover:bg-slate-200 active:bg-slate-300 text-slate-700 font-semibold py-3 px-4 rounded-xl border border-slate-300 transition flex items-center justify-center gap-2 cursor-pointer">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                            </svg>
+                            Limpiar / Reiniciar
+                        </button>
+                    </div>
+                </form>
+
+                <!-- Nota Metodológica -->
+                <div class="mt-6 bg-slate-50 rounded-xl p-4 border border-slate-200/80 text-xs text-slate-600 space-y-1.5">
+                    <p class="font-semibold text-academic-navy">Convención Financiera Comercial:</p>
+                    <ul class="list-disc list-inside space-y-1 text-slate-500">
+                        <li>1 Año comercial = <strong>12 meses</strong> = <strong>360 días</strong>.</li>
+                        <li>1 Mes comercial = <strong>30 días</strong>.</li>
+                        <li>El interés simple se calcula siempre sobre el capital inicial (<span class="font-mono">P</span>).</li>
+                    </ul>
+                </div>
+            </section>
+
+            <!-- Columna Derecha: Resultados, Desglose y Tabla -->
+            <section class="lg:col-span-7 space-y-6" id="results-section">
+                
+                <!-- Tarjetas Principales de Resultados -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <!-- Tarjeta Interés Generado (I) -->
+                    <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-20 h-20 bg-emerald-50 rounded-bl-full -mr-4 -mt-4"></div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-emerald-700 mb-1">
+                            Interés Generado / Rendimiento (<span class="font-mono">I</span>)
+                        </p>
+                        <p id="res-interes" class="text-2xl sm:text-3xl font-extrabold text-slate-900 mt-2 break-words">
+                            $900.000
+                        </p>
+                        <p id="res-interes-periodo" class="text-xs text-slate-500 mt-2">
+                            Equivalente a $75.000 por mes
+                        </p>
+                    </div>
+
+                    <!-- Tarjeta Monto Total (M) -->
+                    <div class="bg-academic-navy text-white rounded-2xl shadow-md p-6 relative overflow-hidden">
+                        <div class="absolute top-0 right-0 w-20 h-20 bg-white/5 rounded-bl-full -mr-4 -mt-4"></div>
+                        <p class="text-xs font-bold uppercase tracking-wider text-sky-300 mb-1">
+                            Monto Total a Pagar (<span class="font-mono">M = P + I</span>)
+                        </p>
+                        <p id="res-monto" class="text-2xl sm:text-3xl font-extrabold text-white mt-2 break-words">
+                            $5.900.000
+                        </p>
+                        <p id="res-porcentaje-incremento" class="text-xs text-slate-300 mt-2">
+                            Incremento total del 18,00% sobre el capital
+                        </p>
+                    </div>
+                </div>
+
+                <!-- Desglose Paso a Paso (Ideal para exposición universitaria) -->
+                <div class="bg-white rounded-2xl shadow-md border border-slate-200 p-6 sm:p-7">
+                    <div class="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
+                        <h3 class="text-lg font-bold text-academic-navy flex items-center gap-2">
+                            <svg class="w-5 h-5 text-sky-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                            </svg>
+                            Desglose Paso a Paso de la Fórmula
+                        </h3>
+                        <span class="text-xs font-medium bg-sky-50 text-sky-700 px-2.5 py-1 rounded-md border border-sky-200">
+                            Procedimiento Académico
+                        </span>
+                    </div>
+
+                    <div id="step-by-step" class="space-y-4 text-sm text-slate-700">
+                        <!-- Contenido generado dinámicamente por JS -->
+                    </div>
+                </div>
+
+                <!-- Tabla Resumen de Proyección Periodo a Periodo -->
+                <div class="bg-white rounded-2xl shadow-md border border-slate-200 overflow-hidden">
+                    <div class="p-6 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                        <div>
+                            <h3 class="text-lg font-bold text-academic-navy">
+                                Proyección Lineal Periodo a Periodo
+                            </h3>
+                            <p id="tabla-subtitulo" class="text-xs text-slate-500 mt-0.5">
+                                Evolución mes a mes del interés acumulado y saldo total.
+                            </p>
+                        </div>
+                        <span id="badge-periodos" class="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 w-fit">
+                            12 periodos
+                        </span>
+                    </div>
+
+                    <div class="overflow-x-auto max-h-96 overflow-y-auto">
+                        <table class="min-w-full divide-y divide-slate-200 text-sm text-left">
+                            <thead class="bg-slate-50 text-slate-600 font-semibold sticky top-0 shadow-sm">
+                                <tr>
+                                    <th scope="col" class="px-4 py-3.5">Periodo</th>
+                                    <th scope="col" class="px-4 py-3.5 text-right">Capital Inicial (P)</th>
+                                    <th scope="col" class="px-4 py-3.5 text-right">Interés del Periodo</th>
+                                    <th scope="col" class="px-4 py-3.5 text-right">Interés Acumulado (I)</th>
+                                    <th scope="col" class="px-4 py-3.5 text-right">Monto Acumulado (M)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabla-cuerpo" class="divide-y divide-slate-100 bg-white">
+                                <!-- Filas generadas dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </section>
+        </div>
+    </main>
+
+    <!-- Pie de Página -->
+    <footer class="bg-white border-t border-slate-200 mt-12">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
+            <p><strong>Calculadora Andi Drop Drop</strong> • Proyecto Universitario de Matemática Financiera.</p>
+            <p>Modelo de Interés Simple (<span class="font-mono">I = P &middot; r &middot; t</span>)</p>
+        </div>
+    </footer>
+
+    <!-- Lógica JavaScript del Simulador -->
+    <script>
+        // Referencias a elementos del DOM
+        const form = document.getElementById('loan-form');
+        const capitalInput = document.getElementById('capital');
+        const tasaInput = document.getElementById('tasa');
+        const periodicidadTasaSelect = document.getElementById('periodicidad-tasa');
+        const tiempoInput = document.getElementById('tiempo');
+        const unidadTiempoSelect = document.getElementById('unidad-tiempo');
+        const btnReset = document.getElementById('btn-reset');
+
+        const errorBanner = document.getElementById('error-banner');
+        const errorMessage = document.getElementById('error-message');
+
+        const resInteres = document.getElementById('res-interes');
+        const resInteresPeriodo = document.getElementById('res-interes-periodo');
+        const resMonto = document.getElementById('res-monto');
+        const resPorcentajeIncremento = document.getElementById('res-porcentaje-incremento');
+        const stepByStepContainer = document.getElementById('step-by-step');
+        const tablaSubtitulo = document.getElementById('tabla-subtitulo');
+        const badgePeriodos = document.getElementById('badge-periodos');
+        const tablaCuerpo = document.getElementById('tabla-cuerpo');
+
+        /**
+         * Formatea un número como moneda colombiana (COP) sin decimales innecesarios
+         * o con hasta 2 decimales si existen fracciones significativas.
+         */
+        function formatearMoneda(valor) {
+            return new Intl.NumberFormat('es-CO', {
+                style: 'currency',
+                currency: 'COP',
+                minimumFractionDigits: valor % 1 === 0 ? 0 : 2,
+                maximumFractionDigits: 2
+            }).format(valor);
+        }
+
+        /**
+         * Formatea números generales con separadores de miles estilo colombiano
+         */
+        function formatearNumero(valor, decimales = 4) {
+            return new Intl.NumberFormat('es-CO', {
+                minimumFractionDigits: 0,
+                maximumFractionDigits: decimales
+            }).format(valor);
+        }
+
+        /**
+         * Limpia el texto del input de capital para extraer el valor numérico puro
+         */
+        function obtenerCapitalNumerico() {
+            const raw = capitalInput.value.replace(/\./g, '').replace(/,/g, '.').replace(/[^\d.]/g, '');
+            return parseFloat(raw);
+        }
+
+        /**
+         * Formatea en tiempo real el campo de capital con puntos de miles
+         */
+        capitalInput.addEventListener('input', function (e) {
+            let soloDigitos = e.target.value.replace(/\D/g, '');
+            if (soloDigitos === '') {
+                e.target.value = '';
+                return;
+            }
+            e.target.value = new Intl.NumberFormat('es-CO').format(parseInt(soloDigitos, 10));
+        });
+
+        /**
+         * Muestra un banner de error amigable sin usar alert()
+         */
+        function mostrarError(mensaje) {
+            errorMessage.textContent = mensaje;
+            errorBanner.classList.remove('hidden');
+            errorBanner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function ocultarError() {
+            errorBanner.classList.add('hidden');
+        }
+
+        /**
+         * Ejecuta el cálculo principal de Interés Simple, genera el desglose
+         * paso a paso y construye la tabla de proyección.
+         */
+        function calcularInteresSimple() {
+            ocultarError();
+
+            // 1. Obtener y validar entradas
+            const P = obtenerCapitalNumerico();
+            const tasaPorcentaje = parseFloat(tasaInput.value);
+            const periodicidadTasa = periodicidadTasaSelect.value; // 'mensual' | 'anual'
+            const tiempoIngresado = parseFloat(tiempoInput.value);
+            const unidadTiempo = unidadTiempoSelect.value; // 'meses' | 'anios' | 'dias'
+
+            if (isNaN(P) || P <= 0) {
+                mostrarError('Por favor ingresa un capital inicial (P) válido mayor a $0.');
+                return;
+            }
+            if (isNaN(tasaPorcentaje) || tasaPorcentaje <= 0) {
+                mostrarError('Por favor ingresa una tasa de interés (r) válida mayor a 0%.');
+                return;
+            }
+            if (isNaN(tiempoIngresado) || tiempoIngresado <= 0) {
+                mostrarError('Por favor ingresa un plazo (t) válido mayor a 0.');
+                return;
+            }
+
+            // 2. Estandarización de unidades:
+            // Llevamos tanto la tasa (r) como el tiempo (t) a una base común en AÑOS (base comercial 360 días / 12 meses)
+            // para garantizar precisión matemática absoluta en cualquier combinación.
+            const rDecimalIngresada = tasaPorcentaje / 100;
+            
+            // Tasa anual equivalente (r_anual)
+            const rAnual = periodicidadTasa === 'mensual' 
+                ? rDecimalIngresada * 12 
+                : rDecimalIngresada;
+
+            // Tiempo en años equivalente (t_anual)
+            let tAnual = tiempoIngresado;
+            let textoConversionTiempo = '';
+
+            if (unidadTiempo === 'meses') {
+                tAnual = tiempoIngresado / 12;
+                textoConversionTiempo = `${tiempoIngresado} meses ÷ 12 meses/año = ${formatearNumero(tAnual, 4)} años`;
+            } else if (unidadTiempo === 'dias') {
+                tAnual = tiempoIngresado / 360;
+                textoConversionTiempo = `${tiempoIngresado} días ÷ 360 días/año = ${formatearNumero(tAnual, 4)} años`;
+            } else {
+                tAnual = tiempoIngresado;
+                textoConversionTiempo = `${tiempoIngresado} ${tiempoIngresado === 1 ? 'año' : 'años'} (unidad base anual)`;
+            }
+
+            const textoConversionTasa = periodicidadTasa === 'mensual'
+                ? `${tasaPorcentaje}% mensual × 12 meses = ${formatearNumero(tasaPorcentaje * 12, 2)}% anual (${formatearNumero(rAnual, 4)})`
+                : `${tasaPorcentaje}% anual = ${formatearNumero(rAnual, 4)} en forma decimal`;
+
+            // 3. Aplicación de las fórmulas fundamentales:
+            // I = P * r * t
+            // M = P + I
+            const interesTotal = P * rAnual * tAnual;
+            const montoTotal = P + interesTotal;
+            const porcentajeIncremento = (interesTotal / P) * 100;
+
+            // 4. Actualizar tarjetas de resultados
+            resInteres.textContent = formatearMoneda(interesTotal);
+            resMonto.textContent = formatearMoneda(montoTotal);
+            resPorcentajeIncremento.textContent = `Incremento total del ${formatearNumero(porcentajeIncremento, 2)}% sobre el capital inicial`;
+
+            // Calcular interés promedio por unidad ingresada
+            const interesPorUnidad = interesTotal / tiempoIngresado;
+            const nombreUnidadSingular = unidadTiempo === 'meses' ? 'mes' : (unidadTiempo === 'anios' ? 'año' : 'día');
+            resInteresPeriodo.textContent = `Equivalente a ${formatearMoneda(interesPorUnidad)} por ${nombreUnidadSingular}`;
+
+            // 5. Renderizar Desglose Paso a Paso para exposición académica
+            renderizarDesglose({
+                P,
+                tasaPorcentaje,
+                periodicidadTasa,
+                rAnual,
+                tiempoIngresado,
+                unidadTiempo,
+                tAnual,
+                textoConversionTasa,
+                textoConversionTiempo,
+                interesTotal,
+                montoTotal
+            });
+
+            // 6. Renderizar Tabla de Proyección Periodo a Periodo
+            renderizarTabla(P, interesTotal, tiempoIngresado, unidadTiempo);
+        }
+
+        /**
+         * Construye la explicación didáctica paso a paso con los valores exactos ingresados
+         */
+        function renderizarDesglose(datos) {
+            const {
+                P, rAnual, tAnual,
+                textoConversionTasa, textoConversionTiempo,
+                interesTotal, montoTotal
+            } = datos;
+
+            stepByStepContainer.innerHTML = `
+                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200/70">
+                    <p class="font-semibold text-academic-navy mb-1">Paso 1: Identificación y homologación de variables</p>
+                    <ul class="space-y-1 text-slate-600 text-xs sm:text-sm">
+                        <li>&bull; <strong>Capital Inicial (<span class="font-mono text-sky-700">P</span>):</strong> ${formatearMoneda(P)}</li>
+                        <li>&bull; <strong>Tasa Anual Equivalente (<span class="font-mono text-sky-700">r</span>):</strong> ${textoConversionTasa}</li>
+                        <li>&bull; <strong>Tiempo en Años (<span class="font-mono text-sky-700">t</span>):</strong> ${textoConversionTiempo}</li>
+                    </ul>
+                </div>
+
+                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200/70">
+                    <p class="font-semibold text-academic-navy mb-1">Paso 2: Cálculo del Interés Simple (<span class="font-mono">I = P &times; r &times; t</span>)</p>
+                    <p class="font-mono text-xs sm:text-sm bg-white p-2.5 rounded-lg border border-slate-200 text-slate-800 overflow-x-auto">
+                        I = ${formatearMoneda(P)} &times; ${formatearNumero(rAnual, 4)} &times; ${formatearNumero(tAnual, 4)} = <strong class="text-emerald-700">${formatearMoneda(interesTotal)}</strong>
+                    </p>
+                </div>
+
+                <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200/70">
+                    <p class="font-semibold text-academic-navy mb-1">Paso 3: Cálculo del Monto Final (<span class="font-mono">M = P + I</span>)</p>
+                    <p class="font-mono text-xs sm:text-sm bg-white p-2.5 rounded-lg border border-slate-200 text-slate-800 overflow-x-auto">
+                        M = ${formatearMoneda(P)} + ${formatearMoneda(interesTotal)} = <strong class="text-academic-navy">${formatearMoneda(montoTotal)}</strong>
+                    </p>
+                </div>
+            `;
+        }
+
+        /**
+         * Genera la tabla de acumulación lineal periodo a periodo
+         */
+        function renderizarTabla(P, interesTotal, tiempoIngresado, unidadTiempo) {
+            const totalPeriodos = Math.ceil(tiempoIngresado);
+            // Límite de seguridad visual si ingresan miles de días (ej. 3600 días), agrupando o limitando filas
+            const maxFilas = 360;
+            const periodosAMostrar = Math.min(totalPeriodos, maxFilas);
+
+            const etiquetaPeriodo = unidadTiempo === 'meses' ? 'Mes' : (unidadTiempo === 'anios' ? 'Año' : 'Día');
+            const etiquetaPlural = unidadTiempo === 'meses' ? 'meses' : (unidadTiempo === 'anios' ? 'años' : 'días');
+
+            tablaSubtitulo.textContent = `Crecimiento lineal del interés simple (${etiquetaPeriodo.toLowerCase()} a ${etiquetaPeriodo.toLowerCase()}) sobre capital constante.`;
+            badgePeriodos.textContent = `${totalPeriodos} ${totalPeriodos === 1 ? etiquetaPeriodo.toLowerCase() : etiquetaPlural}`;
+
+            const interesPorPeriodo = interesTotal / tiempoIngresado;
+            let filasHTML = '';
+
+            for (let i = 1; i <= periodosAMostrar; i++) {
+                // Para el último periodo si tiempoIngresado tuviera decimales (ej: 6.5 meses)
+                const factorPeriodo = (i === totalPeriodos && tiempoIngresado % 1 !== 0)
+                    ? (tiempoIngresado % 1)
+                    : 1;
+
+                const interesDelPeriodoActual = interesPorPeriodo * factorPeriodo;
+                const interesAcumulado = (i === totalPeriodos)
+                    ? interesTotal
+                    : interesPorPeriodo * i;
+                const montoAcumulado = P + interesAcumulado;
+
+                const esUltimo = i === totalPeriodos;
+                const claseFila = esUltimo ? 'bg-emerald-50/70 font-semibold' : 'hover:bg-slate-50 transition';
+
+                filasHTML += `
+                    <tr class="${claseFila}">
+                        <td class="px-4 py-3 text-slate-800 whitespace-nowrap">
+                            ${etiquetaPeriodo} ${i}
+                        </td>
+                        <td class="px-4 py-3 text-right text-slate-600 whitespace-nowrap">
+                            ${formatearMoneda(P)}
+                        </td>
+                        <td class="px-4 py-3 text-right text-emerald-700 whitespace-nowrap">
+                            +${formatearMoneda(interesDelPeriodoActual)}
+                        </td>
+                        <td class="px-4 py-3 text-right text-slate-800 whitespace-nowrap">
+                            ${formatearMoneda(interesAcumulado)}
+                        </td>
+                        <td class="px-4 py-3 text-right font-semibold text-academic-navy whitespace-nowrap">
+                            ${formatearMoneda(montoAcumulado)}
+                        </td>
+                    </tr>
+                `;
+            }
+
+            if (totalPeriodos > maxFilas) {
+                filasHTML += `
+                    <tr class="bg-amber-50 text-amber-800 text-xs">
+                        <td colspan="5" class="px-4 py-3 text-center font-medium">
+                            Se muestran los primeros ${maxFilas} periodos de ${totalPeriodos}. El monto final acumulado al periodo ${totalPeriodos} es de <strong>${formatearMoneda(P + interesTotal)}</strong>.
+                        </td>
+                    </tr>
+                `;
+            }
+
+            tablaCuerpo.innerHTML = filasHTML;
+        }
+
+        // Evento de envío del formulario
+        form.addEventListener('submit', function (e) {
+            e.preventDefault();
+            calcularInteresSimple();
+        });
+
+        // Evento de reinicio / limpieza del formulario
+        btnReset.addEventListener('click', function () {
+            ocultarError();
+            capitalInput.value = '5.000.000';
+            tasaInput.value = '1.5';
+            periodicidadTasaSelect.value = 'mensual';
+            tiempoInput.value = '12';
+            unidadTiempoSelect.value = 'meses';
+            calcularInteresSimple();
+        });
+
+        // Cálculo inicial al cargar la página para mostrar un ejemplo funcional inmediato
+        window.addEventListener('DOMContentLoaded', calcularInteresSimple);
+    </script>
+</body>
+</html>
